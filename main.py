@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 from sqlalchemy.orm import Session
 from database import Base, engine, SessionLocal
 import models
+from services.etl import import_goodreads_csv
 
 app = FastAPI()
 
@@ -27,5 +28,5 @@ async def import_goodreads(
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=415, detail="upload a .csv file")
     content = await file.read()
-    # TODO: parse CSV and upsert rows
-    return {"status": "received", "bytes": len(content)}
+    result = import_goodreads_csv(content, db)
+    return result
