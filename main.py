@@ -75,5 +75,22 @@ def stats_overview(db: Session = Depends(get_db)):
     }
 
 @app.get("/recommend/next")
-def recommend_next(limit: int = 10, db: Session = Depends(get_db)):
-    return recommend_to_read(db, user_id="me", limit=limit)
+def recommend_next(
+    limit: int = 10,
+    w_author: float = 0.35,
+    w_year: float = 0.25,
+    w_pages: float = 0.20,
+    k_author: float = 2.0,
+    k_year: float = 2.0,
+    db: Session = Depends(get_db)
+):
+    return recommend_to_read(
+        db,
+        user_id="me",
+        limit=limit,
+        w_author=w_author,
+        w_pages=w_pages,
+        w_year=w_year,
+        k_author=k_author,
+        k_year=k_year,
+    )
