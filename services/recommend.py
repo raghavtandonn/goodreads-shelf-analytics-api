@@ -9,7 +9,7 @@ def _norm_pages(pages, max_pages=600):
     if pages is None:
         return 0.5  # neutral if unknown
     p = min(max_pages, max(0, int(pages)))
-    return 1.0 - (p / max_pages)  # shorter → higher score
+    return 1.0 - (p / max_pages)  # shorter means higher score bc on average prefer shorter books
 
 def _norm_year(year, lo=1900, hi=2025):
     if year is None:
@@ -34,7 +34,7 @@ def build_user_profile(db: Session, user_id: str = "me", k_author: float = 2.0, 
           .scalar()
     ) or 0.0
 
-    # author has a bayesian-smoothed mean rating so past ratings of an author affect current recs
+    # author has a bayesian mean rating so past ratings of an author affect current recs
     author_pref = {}
     rows = (
         db.query(Book.author,
