@@ -50,7 +50,7 @@ def build_user_profile(db: Session, user_id: str = "me", k_author: float = 2.0, 
     )
     for author, n, avg in rows:
         bayes = _bayes(avg, n, global_mean, k_author)
-        author_pref[author] = bayes / 5.0  # to [0,1]
+        author_pref[author] = bayes / 5.0
 
     # year also has bayesian smoothed mean rating, then min-max to [0,1]
     year_bayes = {}
@@ -100,7 +100,7 @@ def recommend_to_read(
     aff = profile["author_pref"]
     year_pref = profile["year_pref"]
     global_mean_norm = profile["global_mean_norm"]  # fallback when author/year is unseen
-
+ 
     candidates = (
         db.query(Book.id, Book.title, Book.author, Book.pages, Book.year)
           .join(Reading, Reading.book_id == Book.id)
