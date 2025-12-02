@@ -13,10 +13,27 @@ REQUIRED = [
 
 def _to_int(x):
     try:
+        if x is None:
+            return None
+        if isinstance(x, (int, float)):
+            if pd.isna(x):
+                return None
+            v = int(float(x))
+            return v if v != 0 else None
+        # strings like "384.0" or "1,024"
         s = str(x).strip()
-        return int(s) if s and s.lower() != "nan" else None
+        if not s or s.lower() == "nan":
+            return None
+        s = s.replace(",", "")
+        v = int(float(s))
+        return v if v != 0 else None
     except Exception:
         return None
+
+def _to_rating(x):
+    # Goodreads 'My Rating' where 0 means unrated = None factor
+    v = _to_int(x)
+    return v if (v is not None and v > 0) else None
 
 def _to_float(x):
     try:
@@ -39,9 +56,7 @@ def _to_date(s):
     return None
 
 def import_goodreads_csv(file_bytes: bytes, db: Session) -> dict:
-    """
-    Read the Goodreads export CSV and upsert into User, Book, Reading.
-    """
+    # Read the Goodreads export CSV and upsert into User, Book, Reading
     df = pd.read_csv(io.BytesIO(file_bytes))
     missing = [c for c in REQUIRED if c not in df.columns]
     if missing:
@@ -68,7 +83,7 @@ def import_goodreads_csv(file_bytes: bytes, db: Session) -> dict:
 
         pages   = _to_int(row["Number of Pages"])
         year    = _to_int(row["Original Publication Year"])
-        rating  = _to_float(row["My Rating"])
+        rating  = _to_rating(row["My Rating"])
         shelf   = str(row["Exclusive Shelf"]).strip() if pd.notna(row["Exclusive Shelf"]) else ""
         shelves = str(row["Bookshelves"]).strip() if pd.notna(row["Bookshelves"]) else ""
         date_read = _to_date(row.get("Date Read"))
@@ -87,7 +102,7 @@ def import_goodreads_csv(file_bytes: bytes, db: Session) -> dict:
             if shelves and shelves not in (book.shelves or ""):
                 book.shelves = (book.shelves + "," if book.shelves else "") + shelves
 
-        db.flush()  # ensure book.id exists for the foreign key
+        db.flush()  # ensure book.id exists
 
         reading = db.query(Reading).filter_by(user_id=user_id, book_id=book.id).first()
         if not reading:

@@ -14,7 +14,7 @@ class Book(Base):
     author = Column(String, nullable=False, index=True)
     pages  = Column(Integer)
     year   = Column(Integer)
-    shelves = Column(String)                     # comma-joined tags
+    shelves = Column(String)
     __table_args__ = (UniqueConstraint("title", "author", name="uq_title_author"),)
 
     readings = relationship("Reading", back_populates="book", cascade="all, delete")
