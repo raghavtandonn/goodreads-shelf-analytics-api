@@ -20,7 +20,7 @@ def _to_int(x):
                 return None
             v = int(float(x))
             return v if v != 0 else None
-        # strings like "384.0" or "1,024"
+
         s = str(x).strip()
         if not s or s.lower() == "nan":
             return None
@@ -31,7 +31,7 @@ def _to_int(x):
         return None
 
 def _to_rating(x):
-    # Goodreads 'My Rating' where 0 means unrated = None factor
+    # Goodreads 'My Rating' where 0 means unrated is None
     v = _to_int(x)
     return v if (v is not None and v > 0) else None
 
@@ -88,7 +88,7 @@ def import_goodreads_csv(file_bytes: bytes, db: Session) -> dict:
         shelves = str(row["Bookshelves"]).strip() if pd.notna(row["Bookshelves"]) else ""
         date_read = _to_date(row.get("Date Read"))
 
-        # get-or-create book on (title, author)
+        # get or create book instance on (title, author)
         book = db.query(Book).filter_by(title=title, author=author).first()
         if not book:
             book = Book(title=title, author=author, pages=pages, year=year, shelves=shelves)
@@ -102,7 +102,7 @@ def import_goodreads_csv(file_bytes: bytes, db: Session) -> dict:
             if shelves and shelves not in (book.shelves or ""):
                 book.shelves = (book.shelves + "," if book.shelves else "") + shelves
 
-        db.flush()  # ensure book.id exists
+        db.flush()
 
         reading = db.query(Reading).filter_by(user_id=user_id, book_id=book.id).first()
         if not reading:
