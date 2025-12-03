@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Query
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 from sqlalchemy.orm import Session
 from database import Base, engine, SessionLocal
 import models
@@ -95,18 +95,10 @@ def recommend_next(
         k_year=k_year,
     )
 
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
-from sqlalchemy.orm import Session
-from database import Base, engine, SessionLocal
-import models
-from services.etl import import_goodreads_csv
-from sqlalchemy import func
-from datetime import date as _date
-from services.recommend import recommend_to_read
+
 
 app = FastAPI()
 
-# create tables once at startup
 Base.metadata.create_all(bind=engine)
 
 def get_db():
