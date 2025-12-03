@@ -109,7 +109,7 @@ def recommend_to_read(
 
     scored = []
     for bid, title, author, pages, year in candidates:
-        UNKNOWN_AUTHOR_DEFAULT = 0.48  # pick your taste: 0.45–0.5
+        UNKNOWN_AUTHOR_DEFAULT = 0.00
         a = _clamp01(aff.get(author, UNKNOWN_AUTHOR_DEFAULT))
         y = _clamp01(year_pref.get(year, 0.5))
         p = _norm_pages(pages, max_pages=800)
